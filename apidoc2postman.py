@@ -3,11 +3,18 @@ from inspect import Parameter
 import os
 import json
 from re import L
+import argparse
 
 base_path = os.path.dirname(os.path.abspath(__file__))
 
-apidoc_path = os.path.join(base_path, "sameple_apidoc.json")
+# apidoc_path = os.path.join(base_path, "sameple_apidoc.json")
 collection = {}
+
+parser = parser = argparse.ArgumentParser()
+parser.add_argument("-p", "--path", help="path of the apidoc file", type=str, required=True)
+
+args = parser.parse_args()
+apidoc_path = args.path
 
 with open(apidoc_path, 'r') as infile:
     apidoc = json.load(infile)
@@ -50,28 +57,12 @@ if "tags" in apidoc:
 
 
 # get paths
-# requests = []
-
 if "paths" in apidoc:
     for path in apidoc["paths"].keys():
         endpoint = path.replace("{", ":").replace("}", "")
         url = "{{url}}/" + endpoint
         request_paths = endpoint.split("/")
         request_paths.pop(0)
-        # for method in apidoc["paths"][path].keys():
-        #     requests.append(dict({
-        #         "name": path,
-        #         "request": {
-        #             "method": method,
-        #             "header": [],
-        #             "url": {
-        #                 "raw": url,
-        #                 "protocol": server_url.split(":")[0],
-        #                 "host": [server_url.split("/")[2]],
-        #                 "path": request_paths
-        #             }
-        #         }
-        #     }))
 
         for method in apidoc["paths"][path].keys():
             request = {}
@@ -132,7 +123,6 @@ if "paths" in apidoc:
                 collection["item"].append(request)
 
 
-# print(requests)
 print(collection)
 
 with open(collection_path, 'w') as outfile:
