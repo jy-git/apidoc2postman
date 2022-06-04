@@ -17,7 +17,7 @@ def get_arguments():
 def get_apidoc(path):
     if os.path.exists(path):
         try:
-            with open(path, 'r') as infile:
+            with open(path, 'rb') as infile:
                 apidoc = json.load(infile)
             return apidoc
         except:
@@ -49,12 +49,13 @@ def apidoc2postman(apidoc):
     collection["variable"] = []
 
     if "servers" in apidoc:
-        server_url = apidoc["servers"][0]["url"]
         for key in apidoc["servers"][0].keys():
             collection["variable"].append(dict({"key": key, "value": apidoc["servers"][0][key]}))
     else:
-        server_url = "http://localhost"
-
+        if "host" in apidoc:
+            collection["variable"].append(dict({"key": "url", "value": apidoc["host"]}))
+        else:
+            collection["variable"].append(dict({"key": "url", "value": "http://localhost"}))
 
     # parse apidoc for postman collection items (folders)
     collection["item"] = []
@@ -103,9 +104,6 @@ def apidoc2postman(apidoc):
                             "key": param["name"],
                         })
 
-                        if "type" in param["schema"]:
-                            p["type"] = param["schema"]["type"]
-
                         if "required" in param and param["required"]:
                             p["description"] = "required. "
                         else:
@@ -114,7 +112,13 @@ def apidoc2postman(apidoc):
 
                         if "description" in param:
                             p["description"] += param["description"]
+                        
+                        if "type" in param:
+                            p["type"] = param["type"]
 
+                        if "schema" in param:
+                            if "type" in param["schema"]:
+                                p["type"] = param["schema"]["type"]
 
                         if param["in"] == "header":
                             request["request"]["header"].append(p)
