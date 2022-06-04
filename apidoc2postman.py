@@ -83,7 +83,8 @@ def apidoc2postman(apidoc):
                         "url": {
                             "raw": url,
                             "host": "{{url}}",
-                            "path": request_paths
+                            "path": request_paths,
+                            "query": []
                         }
 
                     }
@@ -95,9 +96,6 @@ def apidoc2postman(apidoc):
                     request["operationId"] = apidoc["paths"][path][method]["operationId"]
                 
                 if "parameters" in apidoc["paths"][path][method]:
-                    request["request"]["header"] = []
-                    request["request"]["url"]["query"] = []
-
                     for param in apidoc["paths"][path][method]["parameters"]:
                         # print(param)
                         p = dict({
