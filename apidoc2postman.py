@@ -119,6 +119,8 @@ def apidoc2postman(apidoc):
                         if "schema" in param:
                             if "type" in param["schema"]:
                                 p["type"] = param["schema"]["type"]
+                            if "enum" in param["schema"]:
+                                p["description"] = "%s; available values: %s" % (p["description"], param["schema"]["enum"])
 
                         if param["in"] == "header":
                             request["request"]["header"].append(p)
