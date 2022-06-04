@@ -141,6 +141,27 @@ def apidoc2postman(apidoc):
                             collection["item"].append(tag_dict)
                 else:
                     collection["item"].append(request)
+
+    return collection
+
+
+def sort(collection):
+    # sort collection variables
+    collection["variable"].sort(key=lambda x: x["key"])
+
+    # sort collection folders
+    collection["item"].sort(key=lambda x: x["name"])
+
+    # sort collection folders
+    for item in collection["item"]:
+        item["item"].sort(key=lambda x: x["name"])
+
+        for subItem in item["item"]:
+            # sort request headers
+            subItem["request"]["header"].sort(key=lambda x: x["key"])
+            # sort request query params
+            subItem["request"]["url"]["query"].sort(key=lambda x: x["key"])
+
     return collection
 
 
@@ -158,7 +179,7 @@ def run():
     args = get_arguments()
     apidoc = get_apidoc(args.path)
     collection = apidoc2postman(apidoc)    
-    dump(collection)
+    dump(sort(collection))
     
 
 if __name__ == "__main__":
