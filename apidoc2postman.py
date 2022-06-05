@@ -1,8 +1,5 @@
-from ast import And
-from inspect import Parameter
 import os
 import json
-from re import L
 import argparse
 
 base_path = os.path.dirname(os.path.abspath(__file__))
@@ -97,7 +94,6 @@ def apidoc2postman(apidoc):
                 
                 if "parameters" in apidoc["paths"][path][method]:
                     for param in apidoc["paths"][path][method]["parameters"]:
-                        # print(param)
                         p = dict({
                             "key": param["name"],
                         })
@@ -143,22 +139,30 @@ def apidoc2postman(apidoc):
     return collection
 
 
+def sort_item(item):
+    if "item" in item:
+        # sort each subitem
+        for subitem in item["item"]:
+            sort_item(subitem)
+
+    if "request" in item:
+        # sort request headers
+        item["request"]["header"].sort(key=lambda x: x["key"])
+        # sort request query params
+        item["request"]["url"]["query"].sort(key=lambda x: x["key"])
+
+    # sort items
+    item.sort(key=lambda x: x["name"])
+
+
 def sort(collection):
     # sort collection variables
-    collection["variable"].sort(key=lambda x: x["key"])
+    if "variable" in collection:
+        collection["variable"].sort(key=lambda x: x["key"])
 
     # sort collection folders
-    collection["item"].sort(key=lambda x: x["name"])
-
-    # sort collection folders
-    for item in collection["item"]:
-        item["item"].sort(key=lambda x: x["name"])
-
-        for subItem in item["item"]:
-            # sort request headers
-            subItem["request"]["header"].sort(key=lambda x: x["key"])
-            # sort request query params
-            subItem["request"]["url"]["query"].sort(key=lambda x: x["key"])
+    if "item" in collection:
+        sort_item(collection["item"])
 
     return collection
 
