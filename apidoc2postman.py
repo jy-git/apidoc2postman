@@ -99,7 +99,7 @@ def apidoc2postman(apidoc):
                         })
 
                         if "required" in param and param["required"]:
-                            p["description"] = "required. "
+                            p["description"] = "required."
                         else:
                             p["description"] = ""
                             p["disabled"] = True
@@ -141,7 +141,7 @@ def apidoc2postman(apidoc):
 
 def sort_item(item):
     if "item" in item:
-        # sort each subitem
+        item["item"].sort(key=lambda x: x["name"])
         for subitem in item["item"]:
             sort_item(subitem)
 
@@ -151,9 +151,6 @@ def sort_item(item):
         # sort request query params
         item["request"]["url"]["query"].sort(key=lambda x: x["key"])
 
-    # sort items
-    item.sort(key=lambda x: x["name"])
-
 
 def sort(collection):
     # sort collection variables
@@ -162,7 +159,9 @@ def sort(collection):
 
     # sort collection folders
     if "item" in collection:
-        sort_item(collection["item"])
+        collection["item"].sort(key=lambda x: x["name"])
+        for item in collection["item"]:
+            sort_item(item)
 
     return collection
 
